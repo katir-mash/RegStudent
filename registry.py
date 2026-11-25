@@ -113,12 +113,12 @@ def create_app(path, key=None):
         data = request.get_json(silent=True)
         if not isinstance(data, dict) or not all(isinstance(data.get(k), str) for k in ('login','password')):
             return error('Expected login and password', 400)
-        row = db().execute('SELECT id,digest FROM users WHERE login=?', (data['login'],)).fetchone()
+        row = db().execute('SELECT id,digest,role FROM users WHERE login=?', (data['login'],)).fetchone()
         match = check_password_hash(row['digest'] if row else dummy, data['password'])
         if not row or not match:
             audit.info('login_denied')
             return error('Invalid credentials', 401)
-        return jsonify(token=tokens.dumps(row['id']))
+        return jsonify(token=tokens.dumps(row['id']), role=row['role'])
 
     @app.get('/api/users/<int:uid>')
     @protect(admin=True)

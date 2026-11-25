@@ -1,0 +1,8 @@
+.dart_tool/
+.flutter-plugins*
+build/
+shots/
+android-evidence/
+*.iml
+android/local.properties
+android/.gradle/

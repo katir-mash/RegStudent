@@ -1,0 +1,68 @@
+name: RegStudent Android
+on:
+  push:
+    paths: ['mobile/**', 'registry.py', '.github/workflows/mobile.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          cache: true
+      - name: Resolve and check mobile client
+        working-directory: mobile
+        run: |
+          flutter pub get
+          flutter analyze --no-fatal-infos
+          flutter test --reporter expanded
+      - name: Build installable Android APK
+        working-directory: mobile
+        run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RegStudent-APK
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Start isolated registry
+        run: |
+          python -m pip install -r requirements.txt
+          export LAB_PASSWORD="$(python -c 'import secrets;print(secrets.token_urlsafe(24))')"
+          echo "::add-mask::$LAB_PASSWORD"
+          echo "LAB_PASSWORD=$LAB_PASSWORD" >> "$GITHUB_ENV"
+          python mobile/tool/seed_ci.py "$RUNNER_TEMP/registry.db"
+          python registry.py --db "$RUNNER_TEMP/registry.db" > "$RUNNER_TEMP/registry.log" 2>&1 &
+          for i in {1..20}; do curl -fsS http://127.0.0.1:8080/ >/dev/null && break; sleep 1; done
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Verify five screens on Android with the real API
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          target: default
+          profile: pixel_2
+          disable-animations: true
+          script: |
+            adb reverse tcp:8080 tcp:8080
+            cd mobile && flutter drive -d emulator-5554 --driver=test_driver/driver.dart --target=integration_test/app_test.dart --dart-define=LAB_PASSWORD="$LAB_PASSWORD"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Android-screens
+          path: mobile/android-evidence/
+          if-no-files-found: warn
