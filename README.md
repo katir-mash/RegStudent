@@ -52,3 +52,10 @@ python bench/run.py
 | tests/ | HTTP, деректер қоры, шекаралық мәндер және қауіпсіздік сценарийлері |
 | bench/ | Locust пайдаланушы сценарийі және төрт жүктеме профилін орындау |
 | evidence/ | Жергілікті сынақ нәтижелері, CSV, журналдар және JUnit |
+
+
+## №9–11 · RegStudent Mobile
+
+[Flutter қолданбасы және іске қосу нұсқаулығы](mobile/README.md) · [Бес экранның Figma макеті](design/RegStudent.fig) · [Офлайн интерактивті прототип](design/Prototype.html)
+
+Android клиенті осы Flask API мен SQLite базасын пайдаланады. `RegStudent Android` workflow APK құрастырады, unit және widget тесттерін орындайды және Android эмуляторын нақты сервермен тексереді. Жүктеп алынған `Prototype.html` браузерде тікелей ашылады.
