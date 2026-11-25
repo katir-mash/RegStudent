@@ -98,32 +98,37 @@ class _LoginState extends State<Login> {
       body: SafeArea(
           child: Form(
               key: form,
-              child: ListView(padding: const EdgeInsets.all(24), children: [
-                const SizedBox(height: 36),
-                const Align(
-                    alignment: Alignment.centerLeft,
-                    child: CircleAvatar(
-                        radius: 29,
-                        backgroundColor: teal,
-                        child: Icon(Icons.school_outlined,
-                            color: Colors.white, size: 32))),
-                const SizedBox(height: 22),
-                heading('Жүйеге кіру'),
-                field('login', 'Логин', login,
-                    check: (v) =>
-                        v.trim().isEmpty ? 'Логинді енгізіңіз' : null),
-                field('password', 'Пароль', pass,
-                    obscure: true,
-                    check: (v) => v.isEmpty ? 'Парольді енгізіңіз' : null),
-                if (error.isNotEmpty)
-                  Text(error,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.error)),
-                FilledButton(
-                    key: const Key('enter'),
-                    onPressed: busy ? null : submit,
-                    child: Text(busy ? 'Күтіңіз…' : 'Кіру')),
-              ]))));
+              child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 36),
+                        const Align(
+                            alignment: Alignment.centerLeft,
+                            child: CircleAvatar(
+                                radius: 29,
+                                backgroundColor: teal,
+                                child: Icon(Icons.school_outlined,
+                                    color: Colors.white, size: 32))),
+                        const SizedBox(height: 22),
+                        heading('Жүйеге кіру'),
+                        field('login', 'Логин', login,
+                            check: (v) =>
+                                v.trim().isEmpty ? 'Логинді енгізіңіз' : null),
+                        field('password', 'Пароль', pass,
+                            obscure: true,
+                            check: (v) =>
+                                v.isEmpty ? 'Парольді енгізіңіз' : null),
+                        if (error.isNotEmpty)
+                          Text(error,
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error)),
+                        FilledButton(
+                            key: const Key('enter'),
+                            onPressed: busy ? null : submit,
+                            child: Text(busy ? 'Күтіңіз…' : 'Кіру')),
+                      ])))));
 }
 
 class Desk extends StatefulWidget {

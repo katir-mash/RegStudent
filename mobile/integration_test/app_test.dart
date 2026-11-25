@@ -9,6 +9,8 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('Android emulator: real Flask API, SQLite and five screens',
       (t) async {
+    t.testTextInput.register();
+    addTearDown(t.testTextInput.unregister);
     bool converted = false;
     await flows(t, () => RegistryApi(Uri.parse(apiOrigin)),
         const String.fromEnvironment('LAB_PASSWORD'), (name) async {

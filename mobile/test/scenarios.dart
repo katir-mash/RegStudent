@@ -9,6 +9,7 @@ Future<void> tap(WidgetTester t, String name) async {
   FocusManager.instance.primaryFocus?.unfocus();
   await t.pumpAndSettle();
   final target = key(name);
+  expect(target, findsOneWidget, reason: 'Missing action: $name');
   await t.ensureVisible(target);
   await t.tap(target);
   await t.pumpAndSettle();

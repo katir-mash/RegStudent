@@ -58,6 +58,9 @@ jobs:
           profile: pixel_2
           disable-animations: true
           script: |
+            adb shell wm size 1080x1920
+            adb shell wm density 320
+            adb shell settings put secure show_ime_with_hard_keyboard 0
             adb reverse tcp:8080 tcp:8080
             cd mobile && flutter drive -d emulator-5554 --driver=test_driver/driver.dart --target=integration_test/app_test.dart --dart-define=LAB_PASSWORD="$LAB_PASSWORD"
       - uses: actions/upload-artifact@v4
