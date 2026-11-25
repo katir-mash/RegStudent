@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="kk"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Студенттер тізілімі</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#182736;font:16px/1.45 system-ui,sans-serif}main{max-width:900px;margin:40px auto;padding:0 20px}section{background:white;padding:22px;margin:16px 0;border:1px solid #cad4dd;border-radius:8px}h1,h2{margin:0 0 14px}h1{font-size:34px}h2{font-size:19px}form{display:flex;flex-wrap:wrap;align-items:end;gap:12px}label{display:grid;gap:4px}input,button{font:inherit;padding:7px 10px;border:1px solid #8c9da8;border-radius:4px}button{background:#194d63;color:white;cursor:pointer}table{border-collapse:collapse;width:100%}td,th{text-align:left;border-bottom:1px solid #d5dde3;padding:7px}#msg{min-height:1.5em}#rows{overflow:auto}#logout{float:right}
+</style>
+<main><h1>Студенттер тізілімі</h1><section id="signin"><h2>Жүйеге кіру</h2>
+<form id="login"><label>Логин<input name="login" autocomplete="username" required></label>
+<label>Пароль<input name="password" type="password" autocomplete="current-password" required></label><button>Кіру</button></form></section>
+<div id="desk" hidden><button id="logout">Шығу</button><section><h2>Тіркелген студенттер</h2>
+<div id="rows"><table><thead><tr><th>ID</th><th>Аты-жөні</th><th>Email</th><th>Топ</th></tr></thead><tbody></tbody></table></div></section>
+<section><h2>Студент деректері</h2><form id="editor">
+<label>ID (жаңа студентке бос қалдырыңыз)<input name="id" type="number" min="1"></label>
+<label>Аты-жөні<input name="name" required maxlength="80"></label><label>Email<input name="email" type="email" required></label>
+<label>Топ<input name="cohort" required maxlength="24"></label><button>Сақтау</button><button type="button" id="remove">ID бойынша жою</button>
+</form></section></div><p role="status" id="msg"></p></main>
+<script>
+const byId = id => document.getElementById(id);
+let token = '';
+async function api(path, method='GET', body) {
+ const headers = {'Content-Type':'application/json'};
+ if(token) headers.Authorization = 'Bearer ' + token;
+ const response = await fetch('/api/'+path, {method,headers,body:body===undefined?undefined:JSON.stringify(body)});
+ const data = response.status===204?null:await response.json();
+ if(!response.ok) throw new Error(response.status+' '+(data.error || response.statusText));
+ return data;
+}
+async function refresh() {
+ const tbody = document.querySelector('tbody');
+ const rows = await api('students');
+ tbody.replaceChildren();
+ for(const row of rows) {
+  const tr=tbody.insertRow();
+  for(const k of ['id','name','email','cohort']) tr.insertCell().textContent=row[k];
+ }
+}
+function message(s){byId('msg').textContent=s;}
+byId('login').onsubmit=async event=>{
+ event.preventDefault(); const f=event.target;
+ try {token=(await api('login','POST',Object.fromEntries(new FormData(f)))).token;
+  f.reset(); await refresh(); byId('signin').hidden=true;byId('desk').hidden=false;message('');}
+ catch(e){message(e.message);}
+};
+byId('logout').onclick=()=>location.reload();
+byId('editor').onsubmit=async event=>{
+ event.preventDefault();const data=Object.fromEntries(new FormData(event.target));const id=data.id;delete data.id;
+ try {await api(id?'students/'+id:'students',id?'PUT':'POST',data);await refresh();event.target.reset();message('Сақталды.');}
+ catch(e){message(e.message);}
+};
+byId('remove').onclick=async()=>{
+ const id=byId('editor').elements.id.value;
+ if(!id){message('Жойылатын студенттің ID нөмірін енгізіңіз.');return;}
+ if(!confirm('ID '+id+' жазбасын жою керек пе?'))return;
+ try {await api('students/'+id,'DELETE');await refresh();byId('editor').reset();message('Жойылды.');}
+ catch(e){message(e.message);}
+};
+</script></html>
