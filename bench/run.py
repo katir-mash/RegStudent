@@ -2,7 +2,6 @@
 import csv
 import os
 import secrets
-import statistics
 import subprocess
 import sys
 import tempfile
@@ -57,7 +56,14 @@ with tempfile.TemporaryDirectory() as temp:
                             time.sleep(1)
                             w.writerow([round(time.monotonic()-start,2),proc.cpu_percent(),round(proc.memory_info().rss/2**20,2)])
                     if job.returncode:
-                        raise RuntimeError(f'Locust returned {job.returncode}, inspect {logfile.name}')
+                        stats_file = Path(str(label) + '_stats.csv')
+                        if job.returncode != 1 or not stats_file.exists():
+                            raise RuntimeError(f'Locust returned {job.returncode}, inspect {logfile.name}')
+                        with stats_file.open(newline='') as stats:
+                            total = next((r for r in csv.DictReader(stats) if r['Name'] == 'Aggregated'), None)
+                        if not total or not int(total['Failure Count']):
+                            raise RuntimeError(f'No complete request results, inspect {logfile.name}')
+                        print(f"Measured request failures: {total['Failure Count']}", flush=True)
         finally:
             server.terminate()
             server.wait()

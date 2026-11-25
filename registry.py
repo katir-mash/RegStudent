@@ -1,7 +1,6 @@
 import argparse
 import functools
 import logging
-import os
 import re
 import secrets
 import sqlite3
@@ -55,7 +54,7 @@ def student_fields(data):
     if any(not isinstance(data[k], str) for k in FIELDS):
         raise ValueError('Fields must be text')
     name, email, cohort = (data[k].strip() for k in FIELDS)
-    if not 1 <= len(name) < 80 or not 1 <= len(cohort) <= 24:
+    if not 1 <= len(name) <= 80 or not 1 <= len(cohort) <= 24:
         raise ValueError('Invalid name or cohort length')
     if len(email) > 254 or not re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s]+', email):
         raise ValueError('Invalid email')
