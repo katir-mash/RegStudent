@@ -412,24 +412,30 @@ class _EditorState extends State<Editor> {
       body: SafeArea(
           child: Form(
               key: form,
-              child: ListView(padding: const EdgeInsets.all(20), children: [
-                heading('Студент деректері'),
-                field('name', 'Аты-жөні', name, check: validateName),
-                field('email', 'Email', email,
-                    check: validateEmail, type: TextInputType.emailAddress),
-                field('cohort', 'Топ', group, check: validateGroup),
-                if (error.isNotEmpty)
-                  Text(error,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.error)),
-                FilledButton(
-                    key: const Key('save'),
-                    onPressed: busy ? null : () => commit(),
-                    child: const Text('Сақтау')),
-                if (widget.student != null)
-                  TextButton(
-                      key: const Key('delete'),
-                      onPressed: busy ? null : () => commit(remove: true),
-                      child: const Text('Жазбаны жою'))
-              ]))));
+              child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        heading('Студент деректері'),
+                        field('name', 'Аты-жөні', name, check: validateName),
+                        field('email', 'Email', email,
+                            check: validateEmail,
+                            type: TextInputType.emailAddress),
+                        field('cohort', 'Топ', group, check: validateGroup),
+                        if (error.isNotEmpty)
+                          Text(error,
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error)),
+                        FilledButton(
+                            key: const Key('save'),
+                            onPressed: busy ? null : () => commit(),
+                            child: const Text('Сақтау')),
+                        if (widget.student != null)
+                          TextButton(
+                              key: const Key('delete'),
+                              onPressed:
+                                  busy ? null : () => commit(remove: true),
+                              child: const Text('Жазбаны жою'))
+                      ])))));
 }

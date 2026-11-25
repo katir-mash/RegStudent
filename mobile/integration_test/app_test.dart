@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:regstudent_mobile/main.dart';
@@ -19,6 +20,8 @@ void main() {
       await binding.takeScreenshot(name);
     });
     final down = RegistryApi(Uri.parse('http://127.0.0.1:18799'));
+    await t.pumpWidget(const SizedBox());
+    await t.pumpAndSettle();
     await t.pumpWidget(RegistryApp(api: down));
     await t.pumpAndSettle();
     await enter(t, 'login', 'registrar');

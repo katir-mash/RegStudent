@@ -6,6 +6,8 @@ import 'package:regstudent_mobile/registry.dart';
 typedef Capture = Future<void> Function(String name);
 Finder key(String name) => find.byKey(ValueKey(name));
 Future<void> tap(WidgetTester t, String name) async {
+  FocusManager.instance.primaryFocus?.unfocus();
+  await t.pumpAndSettle();
   final target = key(name);
   await t.ensureVisible(target);
   await t.tap(target);
@@ -13,6 +15,7 @@ Future<void> tap(WidgetTester t, String name) async {
 }
 
 Future<void> enter(WidgetTester t, String name, String text) async {
+  await t.ensureVisible(key(name));
   await t.enterText(key(name), text);
   await t.pumpAndSettle();
 }
@@ -67,6 +70,7 @@ Future<void> flows(WidgetTester t, RegistryApi Function() api, String password,
   await until(t, find.text('Бұл email тіркелген'));
   await enter(t, 'email', 'aman@example.test');
   await tap(t, 'save');
+  await until(t, key('new'));
   await until(t, find.text('Aman Nur'));
   await enter(t, 'search', ' AMAN ');
   expect(find.text('Aman Nur'), findsOneWidget);
@@ -81,6 +85,7 @@ Future<void> flows(WidgetTester t, RegistryApi Function() api, String password,
   await t.pumpAndSettle();
   await enter(t, 'cohort', 'IT-4');
   await tap(t, 'save');
+  await until(t, key('new'));
   await until(t, find.textContaining('IT-4'));
   await tap(t, 'profileTab');
   await capture('05-profile');
@@ -91,6 +96,7 @@ Future<void> flows(WidgetTester t, RegistryApi Function() api, String password,
   await t.pumpAndSettle();
   await signed(t, 'registrar', password);
   await tap(t, 'browse');
+  await until(t, key('new'));
   await until(t, find.textContaining('IT-4'));
   await t.tap(find.text('Aman Nur'));
   await t.pumpAndSettle();
